@@ -29,6 +29,16 @@ type Person struct {
 	ID         string `json:"id"`
 }
 
+type Tag struct {
+	Description   string
+	Remark        string
+	SubjectType   int
+	Name          string
+	Avatar        string
+	OriginPhotoID string
+	Department    string
+}
+
 func ProcessBytesToFile(bytes []byte) {
 	result := &Result{}
 	errJSON := json.Unmarshal(bytes, result)
@@ -37,7 +47,14 @@ func ProcessBytesToFile(bytes []byte) {
 	}
 	fmt.Println(result.Data.Status)
 	if result.Data.Status == "recognized" {
-		fmt.Println("----- Tag:", result.Data.Person.Tag)
-		SaveBase64Image(result.Data.Face.Image)
+		fmt.Println("----- Tag:", result.Data.Person.Tag, result.Data.Person.DecodedTag())
+		SaveBase64Image(result.Data.Face.Image, result.Data.Person.DecodedTag().Name)
 	}
+}
+
+func (person *Person) DecodedTag() *Tag {
+	tag := &Tag{}
+	err := json.Unmarshal([]byte(person.Tag), tag)
+	CheckError(err)
+	return tag
 }

@@ -1,5 +1,7 @@
 package lib
 
 func CheckError(err error) {
-	panic(err)
+	if err != nil {
+		panic(err)
+	}
 }
