@@ -1,7 +1,7 @@
 package main
 
 import (
-	"GetWebsocketsTest/lib"
+	"FaceServer/lib"
 	"net/url"
 )
 
