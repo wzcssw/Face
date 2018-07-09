@@ -1,9 +1,11 @@
 package main
 
 import (
-	"FaceServer/faceAPI"
+	"FaceServer/api"
 	"FaceServer/lib"
 	"net/url"
+
+	"github.com/gin-gonic/gin"
 )
 
 //主机地址
@@ -21,7 +23,9 @@ func init() {
 }
 func main() {
 	// ProcessWebSocket()
-	faceAPI.GetSubject(33)
+	api.API = gin.Default()
+	api.LoadAPI()
+	api.API.Run()
 }
 
 func ProcessWebSocket() {

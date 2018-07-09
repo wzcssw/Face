@@ -1,9 +1,11 @@
 package lib
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"strings"
 	"time"
@@ -19,11 +21,6 @@ const (
 )
 
 var SessionID = ""
-
-type LoginResult struct {
-	Code int
-	Desc string
-}
 
 func Request(method, url string, params, header map[string]string) ([]byte, error) {
 	var r http.Request
@@ -53,6 +50,28 @@ func Request(method, url string, params, header map[string]string) ([]byte, erro
 	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	return body, err
+}
+
+// data: Base64图片(jpeg)
+func NewFileUploadRequest(uri string, params map[string]string, paramName string, data []byte) (*http.Request, error) {
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile(paramName, "tmp.jpg")
+	if err != nil {
+		return nil, err
+	}
+	part.Write(data)
+	for key, val := range params {
+		_ = writer.WriteField(key, val)
+	}
+	err = writer.Close()
+	if err != nil {
+		return nil, err
+	}
+	request, err := http.NewRequest("POST", uri, body)
+	request.Header.Add("Content-Type", writer.FormDataContentType())
+	request.Header.Add("Cookie", "session="+SessionID)
+	return request, err
 }
 
 func Post(url string, params map[string]string) ([]byte, error) {
@@ -93,14 +112,14 @@ func GetSession() (string, error) {
 		}
 	}
 	body, err := ioutil.ReadAll(resp.Body)
-	LoginResult := &LoginResult{}
-	errJSON := json.Unmarshal(body, LoginResult)
+	Result := &Result{}
+	errJSON := json.Unmarshal(body, Result)
 	if errJSON != nil {
 		fmt.Println("请求登录接口 JSON 解析错误:", errJSON)
 		resultError = errors.New("请求登录接口 JSON 解析错误")
 	} else {
-		if LoginResult.Code != 0 {
-			fmt.Println("请求登录接口 登录失败:", LoginResult.Desc)
+		if Result.Code != 0 {
+			fmt.Println("请求登录接口 登录失败:", Result.Desc)
 			resultError = errors.New("请求登录接口 登录失败")
 		}
 	}

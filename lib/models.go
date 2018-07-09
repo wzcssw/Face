@@ -6,10 +6,13 @@ import (
 )
 
 type Result struct {
+	Code int
+	Desc string
 	Data Data
 }
 
 type Data struct {
+	ID        int
 	Status    string
 	Track     int
 	Timestamp int64
