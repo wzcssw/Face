@@ -30,7 +30,7 @@ func LoadAPI() {
 			c.JSON(400, "缺少参数")
 			return
 		}
-		// 这里还应该添加创建用户API代码
+		// 创建用户
 		subjectID, errCreate := lib.CreateSubject(name)
 		if errCreate != nil {
 			panic(errCreate)
@@ -41,7 +41,7 @@ func LoadAPI() {
 		if err != nil {
 			panic(err)
 		}
-		///////// request
+		// 为用户上传识别图片
 		errUpload := lib.UploadImage(subjectID, bytesData)
 		if errUpload != nil {
 			c.JSON(500, err.Error())
